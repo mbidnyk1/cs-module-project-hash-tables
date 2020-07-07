@@ -24,6 +24,42 @@ class HashTable:
         # Your code here
         self.capacity = capacity
         self.data = [None] * self.capacity
+        self.count = 0
+    
+    def find(self, index, key):
+        cur = self.data[index]
+        while cur is not None:
+            if cur.key == key:
+                return cur.key
+            cur = cur.next
+        
+        return None
+    
+    def insert_at_head(self, index, key, value):
+        entry = HashTableEntry(key, value)
+        entry.next = self.data[index]
+        self.data[index] = entry
+    
+    def delete_entry(self, index, key):
+        cur = self.data[index]
+        if cur.key == key:
+            self.data[index] = self.data[index].next
+            cur.next = None
+            return cur
+        
+        prev = cur
+        cur = cur.next
+
+        while cur is not None:
+            if cur.key == key:
+                prev.next = cur.next
+                cur.next = None
+                return cur
+            else:
+                prev = prev.next
+                cur = cur.next
+        
+        return None
 
     def get_num_slots(self):
         """
@@ -36,7 +72,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -45,7 +81,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return self.count/self.capacity
 
     def fnv1(self, key):
         """
@@ -97,8 +133,26 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        i = self.hash_index(key)
-        self.data[i] = value
+        index = self.hash_index(key)
+
+        
+        if self.data[index] is None: 
+            self.insert_at_head(index,key,value)
+            self.count += 1
+        else:
+            if self.find(index, key) is not None:
+                cur = self.data[index]
+                while cur is not None:
+                    if cur.key == key:
+                        cur.value = value
+                    cur = cur.next
+            elif self.find(index, key) is None:
+                self.insert_at_head(index,key,value)
+                self.count += 1
+                
+
+                
+            
 
     def delete(self, key):
         """
@@ -109,8 +163,12 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        i = self.hash_index(key)
-        self.data[i] = None
+        index = self.hash_index(key)
+        if self.data[index] == None:
+            print("Key not found.")
+        else:
+            self.delete_entry(index,key)
+            self.count -= 1
 
     def get(self, key):
         """
@@ -121,8 +179,18 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        i = self.hash_index(key)
-        return self.data[i]
+        index = self.hash_index(key)
+        if self.data[index] is None:
+            return None
+        else: 
+            if self.find(index,key) == key:
+                cur = self.data[index]
+                while cur is not None:
+                    if cur.key == key:
+                        return cur.value
+                    cur = cur.next
+            else:
+                return None
 
     def resize(self, new_capacity):
         """
@@ -132,7 +200,15 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        old_data = self.data
+        self.data = [None] * new_capacity
+        self.capacity = new_capacity
+        for i in old_data:
+            cur = i
+            while cur is not None:
+                if cur.key:
+                    self.put(cur.key, cur.value)
+                cur = cur.next
 
 
 if __name__ == "__main__":
