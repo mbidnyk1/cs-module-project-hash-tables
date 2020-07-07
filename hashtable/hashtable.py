@@ -22,7 +22,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-
+        self.capacity = capacity
+        self.data = [None] * self.capacity
 
     def get_num_slots(self):
         """
@@ -54,7 +55,14 @@ class HashTable:
         """
 
         # Your code here
-
+        FNV_prime = 1099511628211
+        hash = 14695981039346656037
+    
+        for char in key:
+            hash = hash * FNV_prime
+            hash = hash ^ ord(char)
+        
+        return hash
 
     def djb2(self, key):
         """
@@ -63,15 +71,22 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
-
+        hash = 5381
+        
+        for char in key:
+            hash = (( hash << 5) + hash) + ord(char)
+            hash &= 0xFFFFFFFF
+            hash &= 0xFFFFFFFFFFFFFFFF
+        
+        return hash
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -82,7 +97,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        i = self.hash_index(key)
+        self.data[i] = value
 
     def delete(self, key):
         """
@@ -93,7 +109,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        i = self.hash_index(key)
+        self.data[i] = None
 
     def get(self, key):
         """
@@ -104,7 +121,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        i = self.hash_index(key)
+        return self.data[i]
 
     def resize(self, new_capacity):
         """
